@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body id = "body">
+    <form>
+        <label for="rows">Rows:</label>
+        <input type="number" id="numRows" name="numRows" min="1" max="16", step="1", value="16">
+        &nbsp;
+        <label for="columns">Columns:</label>
+        <input type="number" id="numColumns" name="numColumns" min="1" max="30", step="1", value="30">
+        &nbsp;
+        <label for="mines">Number of Mines:</label>
+        <input type="number" id="numMines" min="1" max="99", step="1", value="99">
+        &nbsp;
+        <input type="button" onclick="generateGrid()" value="New Game">
+        <!-- <input type="button" onclick="getVariables()" value="Variable Return"> -->
+        <br>
+        <input type="button" title="Show cells that must or must not be mines derived from logic." onclick="generateProbability(false)" value="Get Logic">
+        &nbsp;
+        <input type="button" title="Show probabilities of cells being mines." onclick="generateProbability(true)" value="Get Probabilities">
+        <input type="checkbox" title="Include probabilities for unbordered cells." id="nonEdgeProbability" onclick="toggleShowNonEdge()">
+        <label for="nonEdge">All</label>
+      </form>
+    <div id="timerBlock">
+    <span id ="minesRemaining"></span>
+    <span id="minutes">00</span>:<span id="seconds">00</span>
+    <input type="checkbox" title="Change left click to flag. You can also click on revealed empty cells to switch modes." id="flagMode" onclick="toggleFlagMode(false)">
+    <label for="flagMode">Flag Mode</label>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
