@@ -1,0 +1,86 @@
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  
+  td {
+    border: 1px solid black;
+    padding: 1px;
+    text-align: center;
+    width: 25px;
+    min-width: 25px;
+    max-width: 25px;
+    height: 25px;
+    min-height: 25px;
+    max-width: 25px;
+  }
+  td[class='hiddenfalse'] {
+      background-color: gray;
+      font-size: .9em;
+  }
+  td[class='hiddentrue'] {
+    background: url(flagMode.png);
+    background-color: gray;
+    background-position: center;
+    font-size: .9em;
+  }
+  td[class='mine'] {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: black;
+  }
+  td[class='1'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: blue;
+  }
+  td[class='2'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: green;
+  }
+  td[class='3'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: red;
+  }
+  td[class='4'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: purple;
+  }
+  td[class='5'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: maroon;
+  }
+  td[class='6'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: turquoise;
+  }
+  td[class='7'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: black;
+  }
+  td[class='8'] {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: gray;
+  }
+  td[class='flag'] {
+    background: url(flag.png);
+    background-color: gray;
+    background-position: center;
+  }
+
+  span[id='minesRemaining'] {
+    margin-right: 1.75em;
+  }
+  input[id='flagMode'] {
+    margin-left: 1.75em;
+  }
+  div[id='timerBlock'] {
+    display: none;
+  }
