@@ -147,13 +147,13 @@ function generateGrid() {
 
 // Run all probablity calculations
 function generateProbability(isAllProbability) {
-    // Reset old probability values
-    for (let i = 0; i < mineGrid.length; i++) {
-        for (let j = 0; j < mineGrid[i].length; j++) {
-            mineGrid[i][j].mineArr = 0;
-            mineGrid[i][j].probability = -1;
-        }
-    }
+    // // Reset old probability values
+    // for (let i = 0; i < mineGrid.length; i++) {
+    //     for (let j = 0; j < mineGrid[i].length; j++) {
+    //         mineGrid[i][j].mineArr = 0;
+    //         mineGrid[i][j].probability = -1;
+    //     }
+    // }
     hundredCount = 0;
     arrGrid = [];
     edgeArr = [];
@@ -204,7 +204,7 @@ function generateProbability(isAllProbability) {
 
     // Display table
     table.innerHTML = '';
-    makeTable(mineGrid, table, true);
+    // makeTable(mineGrid, table, true);
 }
 
 // Randomly place mines on grid
@@ -236,10 +236,14 @@ function neighborCount(mineGrid) {
     for (let i = 0; i < numRows; i++) {
         for (let j = 0; j < numColumns; j++) {
             let count = 0;
+            let closedNeighborsCount = 0;
             // Left
             if (j > 0) {
                 if (mineGrid[i][j-1].mine == true) {
                     count++;
+                }
+                if (mineGrid[i][j-1].open == false && mineGrid[i][j-1].edge == false) {
+                    closedNeighborsCount++;
                 }
             }
             // Upper Left
@@ -247,11 +251,17 @@ function neighborCount(mineGrid) {
                 if (mineGrid[i-1][j-1].mine == true) {
                     count++;
                 }
+                if (mineGrid[i-1][j-1].open == false && mineGrid[i-1][j-1].edge == false) {
+                    closedNeighborsCount++;
+                }
             }
             // Up
             if (i > 0) {
                 if (mineGrid[i-1][j].mine == true) {
                     count++;
+                }
+                if (mineGrid[i-1][j].open == false && mineGrid[i-1][j].edge == false) {
+                    closedNeighborsCount++;
                 }
             }
             // Upper Right
@@ -259,11 +269,17 @@ function neighborCount(mineGrid) {
                 if(mineGrid[i-1][j+1].mine == true) {
                     count++;
                 }
+                if (mineGrid[i-1][j+1].open == false && mineGrid[i-1][j+1].edge == false) {
+                    closedNeighborsCount++;
+                }
             }
             // Right
             if (j < (numColumns-1)) {
                 if (mineGrid[i][j+1].mine == true) {
                     count++;
+                }
+                if (mineGrid[i][j+1].open == false && mineGrid[i][j+1].edge == false) {
+                    closedNeighborsCount++;
                 }
             }
             // Bottom Right
@@ -271,11 +287,17 @@ function neighborCount(mineGrid) {
                 if (mineGrid[i+1][j+1].mine == true) {
                     count++;
                 }
+                if (mineGrid[i+1][j+1].open == false && mineGrid[i+1][j+1].edge == false) {
+                    closedNeighborsCount++;
+                }
             }
             // Bottom
             if (i < (numRows-1)) {
                 if (mineGrid[i+1][j].mine == true) {
                     count++;
+                }
+                if (mineGrid[i+1][j].open == false && mineGrid[i+1][j].edge == false) {
+                    closedNeighborsCount++;
                 }
             }
             // Bottom Left
@@ -283,30 +305,23 @@ function neighborCount(mineGrid) {
                 if (mineGrid[i+1][j-1].mine == true) {
                     count++;
                 }
+                if (mineGrid[i+1][j-1].open == false && mineGrid[i+1][j-1].edge == false) {
+                    closedNeighborsCount++;
+                }
             }
             if (mineGrid[i][j].mine == true) {
                 mineGrid[i][j].neighbors = -1;
             }
             else {
                 mineGrid[i][j].neighbors = count;
+                mineGrid[i][j].closedNeighbors = closedNeighborsCount;
             }
         }
     }
     
 }
 
-// Run all related functions upon player click
-function revealCell(e) {
-    // Prevent content menu pop up
-    if (flagMode.checked == true) {
-        e.preventDefault();
-    }
-
-    // Get cell index
-    let id = (this.id).split('_');
-    let i = parseInt(id[0]);
-    let j = parseInt(id[1]);
-
+function revealCellContents(i, j) {
     // Run related functions for player first click
     if (firstClick == true) {
         firstClick = false;
@@ -362,11 +377,12 @@ function revealCell(e) {
     arrGrid = [];
     edgeArr = [];
     
-    // generateProbability(true);
+    generateProbability(true);
 
     // Display table
     table.innerHTML = '';
-    makeTable(mineGrid, table);
+    makeTable(mineGrid, table, true);
+    neighborCount(mineGrid);
 
     // Detect win
     if (isWin == true) {
@@ -381,7 +397,41 @@ function revealCell(e) {
         minesRemaining.textContent = 'Mines Remaining: ' + unflaggedMines;
         table.innerHTML = '';
         makeTable(mineGrid, table);
+    } else {
+        let row = -1;
+        let col = -1;
+        let minNeighbors = 9;
+        for (let i = 0; i < mineGrid.length; i++) {
+            for (let idx = 0; idx < mineGrid[0].length; idx++) {
+                cur = mineGrid[i][idx]
+                if (cur.edge && cur.probability == 0 && cur.closedNeighbors < minNeighbors) {
+                    minNeighbors = cur.closedNeighbors;
+                    row = i
+                    col = idx
+                }
+            }
+        }
+        if (row != -1) {
+            setTimeout(() => {
+                revealCellContents(row, col);
+            }, 100);
+        }
     }
+}
+
+// Run all related functions upon player click
+function revealCell(e) {
+    // Prevent content menu pop up
+    if (flagMode.checked == true) {
+        e.preventDefault();
+    }
+
+    // Get cell index
+    let id = (this.id).split('_');
+    let i = parseInt(id[0]);
+    let j = parseInt(id[1]);
+    revealCellContents(i,j);
+    
 }
 
 function flagLogic(specialId) {
@@ -415,7 +465,7 @@ function flag(e) {
 
     // Flag or unflag selected cell
     flagLogic(this.id)
-    // generateProbability(true);
+    generateProbability(true);
 }
 
 // Run all related functions upon player neighbor click
@@ -463,7 +513,7 @@ function revealFlagged() {
     arrGrid = [];
     edgeArr = [];
 
-    // generateProbability(true);
+    generateProbability(true);
 
     // Display table
     table.innerHTML = '';
@@ -505,7 +555,7 @@ function makeTable(mineGrid, table, withProb) {
         for (let j = 0; j < mineGrid[i].length; j++) {
             let cell = document.createElement('td');
             cell.id = i + '_' + j;
-            if (mineGrid[i][j].edge && !mineGrid[i][j].flag && withProb) {
+            if (mineGrid[i][j].edge && !mineGrid[i][j].flag) {
                 cell.style.backgroundColor = getColor(mineGrid[i][j].probability);
             }
             if (mineGrid[i][j].open == false) {
