@@ -9,6 +9,7 @@ let arrGrid = [];
 let edgeArr = [];
 let firstClick;
 let table = document.createElement('table');
+table.id = "Game";
 let minesRemaining = document.getElementById('minesRemaining');
 let body = document.getElementById('body');
 let showNonEdge = document.getElementById('nonEdgeProbability');
@@ -16,6 +17,7 @@ let flagMode = document.getElementById('flagMode');
 let sec;
 let timer;
 let isWin;
+let hoveredElement;
 
 // Return all current variables for debugging
 function getVariables() {
@@ -74,7 +76,7 @@ function toggleShowNonEdge() {
     table.innerHTML = '';
     makeTable(mineGrid, table);
 }
-
+let generatedGrid = false;
 // Generate grid based on player input
 function generateGrid() {
     // Assign First Click Attribute
@@ -118,6 +120,29 @@ function generateGrid() {
     }
     makeTable(mineGrid, table);
     body.appendChild(table);
+    const grid = document.getElementById('Game');
+    grid.setAttribute('tabindex', '0');
+    let hoveredCellId = null;
+    if (!generatedGrid) {
+        grid.addEventListener('keydown', function(event) {
+            // check if spacebar is pressed
+            if (event.keyCode === 32) {
+              // check if the mouse is currently over a cell
+              if (hoveredCellId !== null) {
+                flagLogic(hoveredCellId)
+              }
+            }
+          });
+          
+        grid.addEventListener('mouseover', function(event) {
+            // check if the target element of the event is a cell
+            // update the hovered cell only if it has changed
+            if (hoveredCellId !== event.target.id) {
+                hoveredCellId = event.target.id;
+            }
+        });
+        generatedGrid = true;
+    }
 }
 
 // Run all probablity calculations
@@ -179,7 +204,7 @@ function generateProbability(isAllProbability) {
 
     // Display table
     table.innerHTML = '';
-    makeTable(mineGrid, table);
+    makeTable(mineGrid, table, true);
 }
 
 // Randomly place mines on grid
@@ -324,7 +349,6 @@ function revealCell(e) {
         // Display table
         table.innerHTML = '';
         makeTable(mineGrid, table);
-        return;
     }
 
     // Reset old probability values
@@ -360,17 +384,13 @@ function revealCell(e) {
     }
 }
 
-// Run all related functions upon player flag
-function flag(e) {
-    // Prevent content menu pop up
-    if (flagMode.checked == false) {
-        e.preventDefault();
-    }
-
-    // Flag or unflag selected cell
-    let id = (this.id).split('_');
+function flagLogic(specialId) {
+    let id = (specialId).split('_');
     i = parseInt(id[0]);
     j = parseInt(id[1]);
+    if(mineGrid[i][j].open == true) {
+        return;
+    }
     if(mineGrid[i][j].flag == true) {
         mineGrid[i][j].flag = false;
         unflaggedMines++;
@@ -384,6 +404,18 @@ function flag(e) {
     minesRemaining.textContent = 'Mines Remaining: ' + unflaggedMines;
     table.innerHTML = '';
     makeTable(mineGrid, table);
+}
+
+// Run all related functions upon player flag
+function flag(e) {
+    // Prevent content menu pop up
+    if (flagMode.checked == false) {
+        e.preventDefault();
+    }
+
+    // Flag or unflag selected cell
+    flagLogic(this.id)
+    // generateProbability(true);
 }
 
 // Run all related functions upon player neighbor click
@@ -431,7 +463,7 @@ function revealFlagged() {
     arrGrid = [];
     edgeArr = [];
 
-    // generateProbability(false);
+    // generateProbability(true);
 
     // Display table
     table.innerHTML = '';
@@ -458,14 +490,24 @@ function preventMenu(e) {
     e.preventDefault();
 }
 
+function getColor(value){
+    value /= 100;
+    //value from 0 to 1
+    var hue=((1-value)*120).toString(10);
+    return ["hsl(",hue,",100%,50%)"].join("");
+}
+
 // Generate HTML table from grid
-function makeTable(mineGrid, table) {
+function makeTable(mineGrid, table, withProb) {
     let cellsOpen = 0;
     for (let i = 0; i < mineGrid.length; i++) {
         let row = document.createElement('tr');
         for (let j = 0; j < mineGrid[i].length; j++) {
             let cell = document.createElement('td');
             cell.id = i + '_' + j;
+            if (mineGrid[i][j].edge && !mineGrid[i][j].flag && withProb) {
+                cell.style.backgroundColor = getColor(mineGrid[i][j].probability);
+            }
             if (mineGrid[i][j].open == false) {
                 if (flagMode.checked == true) {
                     cell.addEventListener('click', flag);
